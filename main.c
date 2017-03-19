@@ -58,7 +58,6 @@ void cleanup(int);
 void start(void);
 void step(void);
 void linger(void);
-void final(void);
 int keepgoing(void);
 int ease(int start, int end, int elapsed, int duration);
 
@@ -76,6 +75,8 @@ int main(int argc, char *argv[])
     }
   }
 
+  led_push();
+
   signal(SIGINT, cleanup);
 
   start();
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
 void cleanup(int s)
 {
   (void)s;
-  final();
+  led_pop();
   led_uninit();
   exit(0);
 }
@@ -100,6 +101,7 @@ void start(void)
 {
   stepnum = 1;
   led = LED_SCR;
+  led_setall(0);
 }
 
 static void ledstep(void)
@@ -164,11 +166,6 @@ void linger(void)
     ledstep();
     usleep(wait);
   }
-}
-
-void final(void)
-{
-  led_setall(0);
 }
 
 int keepgoing(void)
