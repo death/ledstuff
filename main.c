@@ -1,3 +1,12 @@
+/*
+   TODO
+
+   * Better command line argument handling.
+
+   * Move ease/elapsed to their own files?
+
+   * Improve comments.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
