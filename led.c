@@ -54,14 +54,15 @@ void led_uninit(void)
    Each led has a corresponding bit in the status word.  When the led
    is on, the bit is 1; when the led is off, the bit is 0.
 
+   Returns -1 on error.
+
    See Also led_reset
 */
 int led_status(void)
 {
   char val;
   if (ioctl(led_fd, KDGETLED, &val) < 0) {
-    /* Fail silently and return all leds off. */
-    return 0;
+    return -1;
   }
   return val;
 }
@@ -79,6 +80,9 @@ void led_reset(int newstatus)
   ioctl(led_fd, KDSETLED, (char)newstatus);
 
   while ((oldstatus = led_status()) != newstatus) {
+    if (oldstatus == -1) {
+      break;
+    }
     if (debug && (i % 100) == 0) {
       printf("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
     }
@@ -88,13 +92,17 @@ void led_reset(int newstatus)
 
 /* led_set - Turn on certain leds.
 
-   Keeps the other leds from changing state.  Returns the previous
-   status word.
+   Keeps the other leds from changing state.
+
+   Returns the previous status word, or -1 on error.
 */
 int led_set(int mask, int bit)
 {
   int oldstatus = led_status();
   int newstatus;
+  if (oldstatus == -1) {
+    return -1;
+  }
   if (bit) {
     newstatus = oldstatus | mask;
   } else {
