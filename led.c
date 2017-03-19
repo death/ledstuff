@@ -15,7 +15,9 @@
 extern int debug;
 
 static int led_fd = -1;
-static int led_initcount;
+static int led_initcount = 0;
+static int led_stackptr = 0;
+static int led_stack[LED_STACK_SIZE];
 
 /* led_init - Initialize the led library.
 
@@ -116,4 +118,41 @@ int led_set(int mask, int bit)
 void led_setall(int bit)
 {
   led_reset(bit ? (LED_SCR | LED_CAP | LED_NUM) : 0);
+}
+
+/* led_push - Push current status word into led stack.
+
+   Return -1 on error, and the number of elements in the stack on
+   success.
+*/
+int led_push(void)
+{
+  if (led_stackptr == LED_STACK_SIZE) {
+    return -1;
+  }
+  led_stack[led_stackptr] = led_status();
+  if (debug) {
+    fprintf(stderr, "push led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
+  }
+  if (led_stack[led_stackptr] == -1) {
+    return -1;
+  }
+  led_stackptr++;
+  return led_stackptr;
+}
+
+/* led_pop - Pop current status word from led stack.
+
+   Does nothing if stack is empty.
+*/
+void led_pop(void)
+{
+  if (led_stackptr == 0) {
+    return;
+  }
+  led_stackptr--;
+  if (debug) {
+    fprintf(stderr, "pop led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
+  }
+  led_reset(led_stack[led_stackptr]);
 }
