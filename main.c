@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 void cleanup(int s)
 {
-  s;
+  (void)s;
   final();
   led_uninit();
   exit(0);
