@@ -12,6 +12,8 @@
 
 #define LED_PATH "/dev/tty0"
 
+extern int debug;
+
 static int led_fd = -1;
 static int led_initcount;
 
@@ -70,7 +72,18 @@ int led_status(void)
 */
 void led_reset(int newstatus)
 {
-  ioctl(led_fd, KDSETLED, newstatus);
+  int i = 1;
+  int oldstatus;
+
+  newstatus &= 0xFF;
+  ioctl(led_fd, KDSETLED, (char)newstatus);
+
+  while ((oldstatus = led_status()) != newstatus) {
+    if (debug && (i % 100) == 0) {
+      printf("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
+    }
+    i++;
+  }
 }
 
 /* led_set - Turn on certain leds.
