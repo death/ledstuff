@@ -15,6 +15,7 @@
 #include <math.h>
 #include <time.h>
 
+#include "ledapp.h"
 #include "led.h"
 
 enum {
@@ -47,14 +48,11 @@ enum {
       EASE_DEFAULT = EASE_OUT_EXP
 };
 
-int debug = 0;
-
 static int mode = EASE_DEFAULT;
 static int stepnum;
 static int wait;
 static int led;
 
-void cleanup(int);
 void start(void);
 void step(void);
 void linger(void);
@@ -63,10 +61,7 @@ int ease(int start, int end, int elapsed, int duration);
 
 int main(int argc, char *argv[])
 {
-  if (led_init() < 0) {
-    fprintf(stderr, "can't initialize led library; did you run as superuser?\n");
-    return 1;
-  }
+  ledapp_setup();
 
   if (argc > 1) {
     mode = atoi(argv[1]);
@@ -75,26 +70,13 @@ int main(int argc, char *argv[])
     }
   }
 
-  led_push();
-
-  signal(SIGINT, cleanup);
-
   start();
   while (keepgoing()) {
     step();
   }
   linger();
 
-  signal(SIGINT, SIG_DFL);
-  cleanup(0);
-}
-
-void cleanup(int s)
-{
-  (void)s;
-  led_pop();
-  led_uninit();
-  exit(0);
+  ledapp_teardown();
 }
 
 void start(void)
