@@ -79,10 +79,17 @@ void led_reset(int newstatus)
   int oldstatus;
 
   newstatus &= 0xFF;
-  ioctl(led_fd, KDSETLED, (char)newstatus);
+  if (ioctl(led_fd, KDSETLED, (char)newstatus) < 0) {
+    if (debug) {
+      fprintf(stderr, "KDSETLED ioctl returned -1\n");
+    }
+  }
 
   while ((oldstatus = led_status()) != newstatus) {
     if (oldstatus == -1) {
+      if (debug) {
+        fprintf(stderr, "led_status returned -1 in led_reset\n");
+      }
       break;
     }
     if (debug && (i % 100) == 0) {
