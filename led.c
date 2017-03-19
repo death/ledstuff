@@ -56,7 +56,7 @@ void led_uninit(void)
 */
 int led_status(void)
 {
-  int val;
+  char val;
   if (ioctl(led_fd, KDGETLED, &val) < 0) {
     /* Fail silently and return all leds off. */
     return 0;
