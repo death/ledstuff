@@ -1,3 +1,6 @@
+/*
+ * common - Utilities for the programs in this repository.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -22,9 +25,11 @@ void ledapp_setup(void)
     exit(1);
   }
 
-  /* We don't push/pop because, frankly, the led status word is not
-     reflective of the actual led states if the user interferes by,
-     say, pressing one of the corresponding keys. */
+  /*
+   * We don't push/pop because, frankly, the led status word is not
+   * reflective of the actual led states if the user interferes by,
+   * say, pressing one of the corresponding keys.
+   */
   led_setall(0);
 
   signal(SIGINT, cleanup);

@@ -1,5 +1,7 @@
 /*
- * evenodd - A simple game using the keyboard's leds.
+ * evenodd - Prove that you're able to count up to 3, determine
+ * parity, associate it with a key, and act accordingly within a time
+ * limit.  Repeatedly.
  *
  * A number of leds will turn on.  If this number is even, or zero,
  * press the 'e' key.  If this number is odd, press the 'o' key.
