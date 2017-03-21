@@ -12,12 +12,18 @@
 
 #define LED_PATH "/dev/tty0"
 
-extern int debug;
-
 static int led_fd = -1;
 static int led_initcount = 0;
 static int led_stackptr = 0;
 static int led_stack[LED_STACK_SIZE];
+static FILE *led_traceoutput = 0;
+
+#define LED_TRACE(...)                                  \
+  do {                                                  \
+    if (led_traceoutput) {                              \
+      fprintf(led_traceoutput, __VA_ARGS__);            \
+    }                                                   \
+  } while (0)
 
 /* led_init - Initialize the led library.
 
@@ -80,20 +86,16 @@ void led_reset(int newstatus)
 
   newstatus &= 0xFF;
   if (ioctl(led_fd, KDSETLED, (char)newstatus) < 0) {
-    if (debug) {
-      fprintf(stderr, "KDSETLED ioctl returned -1\n");
-    }
+    LED_TRACE("KDSETLED ioctl returned -1\n");
   }
 
   while ((oldstatus = led_status()) != newstatus) {
     if (oldstatus == -1) {
-      if (debug) {
-        fprintf(stderr, "led_status returned -1 in led_reset\n");
-      }
+      LED_TRACE("led_status returned -1 in led_reset\n");
       break;
     }
-    if (debug && (i % 100) == 0) {
-      printf("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
+    if ((i & 0x80) == 0) {
+      LED_TRACE("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
     }
     i++;
   }
@@ -138,9 +140,7 @@ int led_push(void)
     return -1;
   }
   led_stack[led_stackptr] = led_status();
-  if (debug) {
-    fprintf(stderr, "push led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
-  }
+  LED_TRACE("push led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
   if (led_stack[led_stackptr] == -1) {
     return -1;
   }
@@ -158,8 +158,15 @@ void led_pop(void)
     return;
   }
   led_stackptr--;
-  if (debug) {
-    fprintf(stderr, "pop led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
-  }
+  LED_TRACE("pop led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
   led_reset(led_stack[led_stackptr]);
+}
+
+/* led_trace - Set a trace output stream.
+
+   Disables tracing if NULL is passed.
+ */
+void led_trace(FILE *stream)
+{
+  led_traceoutput = stream;
 }

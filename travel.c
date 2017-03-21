@@ -48,6 +48,7 @@ enum {
       EASE_DEFAULT = EASE_OUT_EXP
 };
 
+static int debug = 0;
 static int mode = EASE_DEFAULT;
 static int stepnum;
 static int wait;
@@ -62,6 +63,10 @@ int ease(int start, int end, int elapsed, int duration);
 int main(int argc, char *argv[])
 {
   ledapp_setup();
+
+  if (debug) {
+    led_trace(stderr);
+  }
 
   if (argc > 1) {
     mode = atoi(argv[1]);
@@ -238,7 +243,7 @@ int ease(int start, int end, int step, int nsteps)
 
   result = (int)(start + d * f);
   if (debug) {
-    printf("start=%d end=%d step=%d nsteps=%d result=%d\n", start, end, step, nsteps, result);
+    fprintf(stderr, "start=%d end=%d step=%d nsteps=%d result=%d\n", start, end, step, nsteps, result);
   }
   return result;
 }

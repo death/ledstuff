@@ -6,8 +6,6 @@
 #include "ledapp.h"
 #include "led.h"
 
-int debug = 0;
-
 static void cleanup(int s)
 {
   (void)s;
