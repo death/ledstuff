@@ -1,5 +1,5 @@
-#ifndef LEDZEP_INC_LED_H
-#define LEDZEP_INC_LED_H
+#ifndef LEDSTUFF_INC_LED_H
+#define LEDSTUFF_INC_LED_H
 
 #include <stdio.h>
 #include <linux/kd.h>
@@ -21,4 +21,4 @@ int led_push(void);
 void led_pop(void);
 void led_trace(FILE *stream);
 
-#endif // LEDZEP_INC_LED_H
+#endif // LEDSTUFF_INC_LED_H
