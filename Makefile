@@ -1,7 +1,18 @@
-all: evenodd travel
+CC=gcc
+CFLAGS=-Wall
+LIBS=-lm -lcurses
+DEPS=common led
+TARGETS=evenodd travel
 
-evenodd: evenodd.c led.c common.c
-	gcc -Wall -o evenodd evenodd.c led.c common.c -lm -lcurses
+%.o: %.c $(patsubst %, %.h, $(DEPS))
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-travel:	travel.c led.c common.c
-	gcc -Wall -o travel travel.c led.c common.c -lm
+all: $(TARGETS)
+
+$(TARGETS): %: %.o $(patsubst %, %.o, $(DEPS))
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(TARGETS) *.o
