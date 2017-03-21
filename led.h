@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <linux/kd.h>
 
+/* In our programs, we may assume that the led constants (LED_CAP and
+   friends) have the values given in console_ioctl(4) manpage */
+
 enum {
       LED_STACK_SIZE = 16
 };
