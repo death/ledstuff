@@ -25,7 +25,7 @@
 #include <locale.h>
 #include <time.h>
 
-#include "ledapp.h"
+#include "common.h"
 #include "led.h"
 
 enum {
