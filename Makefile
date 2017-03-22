@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall
 LIBS=-lm -lcurses
 DEPS=common led
-TARGETS=evenodd travel
+TARGETS=evenodd travel morse
 
 %.o: %.c $(patsubst %, %.h, $(DEPS))
 	$(CC) -c -o $@ $< $(CFLAGS)
