@@ -141,7 +141,8 @@ int inputaction(struct game *g)
     case ERR:
       return TIMELIMIT;
     default:
-      break;
+      /* Must be done to prevent cheating. */
+      return MISS;
     }
   }
 }
