@@ -15,12 +15,12 @@
 #include "led.h"
 
 enum {
-      DURATION = 6000000,
-      TRAVELS = 10,
-      NSTEPS = 3 * TRAVELS + 1,
-      LINGER = 3 * TRAVELS,
-      MINSPEED = 40000,
-      MAXSPEED = 1000000
+    DURATION = 6000000,
+    TRAVELS = 10,
+    NSTEPS = 3 * TRAVELS + 1,
+    LINGER = 3 * TRAVELS,
+    MINSPEED = 40000,
+    MAXSPEED = 1000000
 };
 
 int stepnum;
@@ -34,53 +34,53 @@ int keepgoing(void);
 
 int main(void)
 {
-  ledapp_setup();
+    ledapp_setup();
 
-  start();
-  while (keepgoing()) {
-    step();
-  }
-  linger();
+    start();
+    while (keepgoing()) {
+        step();
+    }
+    linger();
 
-  ledapp_teardown();
+    ledapp_teardown();
 }
 
 void start(void)
 {
-  stepnum = 1;
-  led = LED_SCR;
-  led_setall(0);
+    stepnum = 1;
+    led = LED_SCR;
+    led_setall(0);
 }
 
 static void ledstep(void)
 {
-  /* Rotate led bits left by 1. */
-  led = ((led << 1) | (led >> 2)) & 7;
-  led_reset(led);
+    /* Rotate led bits left by 1. */
+    led = ((led << 1) | (led >> 2)) & 7;
+    led_reset(led);
 }
 
 void step(void)
 {
-  ledstep();
+    ledstep();
 
-  /* Perform exponential out-easing. */
-  int next = (int)(DURATION * (-pow(2, -5 * (double)min(stepnum, NSTEPS) / NSTEPS) + 1));
-  wait = clamp((next - elapsed()) | 1, MINSPEED, MAXSPEED);
-  usleep(wait);
+    /* Perform exponential out-easing. */
+    int next = (int)(DURATION * (-pow(2, -5 * (double)min(stepnum, NSTEPS) / NSTEPS) + 1));
+    wait = clamp((next - elapsed()) | 1, MINSPEED, MAXSPEED);
+    usleep(wait);
 
-  stepnum++;
+    stepnum++;
 }
 
 void linger(void)
 {
-  int i;
-  for (i = 0; i < LINGER; i++) {
-    ledstep();
-    usleep(wait);
-  }
+    int i;
+    for (i = 0; i < LINGER; i++) {
+        ledstep();
+        usleep(wait);
+    }
 }
 
 int keepgoing(void)
 {
-  return stepnum < NSTEPS;
+    return stepnum < NSTEPS;
 }

@@ -10,7 +10,7 @@
  */
 
 enum {
-      LED_STACK_SIZE = 16
+    LED_STACK_SIZE = 16
 };
 
 int led_init(void);

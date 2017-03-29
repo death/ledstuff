@@ -22,11 +22,11 @@ static int led_stack[LED_STACK_SIZE];
 static FILE *led_traceoutput = 0;
 
 #define LED_TRACE(...)                                  \
-  do {                                                  \
-    if (led_traceoutput) {                              \
-      fprintf(led_traceoutput, __VA_ARGS__);            \
-    }                                                   \
-  } while (0)
+    do {                                                \
+        if (led_traceoutput) {                          \
+            fprintf(led_traceoutput, __VA_ARGS__);      \
+        }                                               \
+    } while (0)
 
 /*
  * led_init - Initialize the led library.
@@ -36,14 +36,14 @@ static FILE *led_traceoutput = 0;
  */
 int led_init(void)
 {
-  if (led_initcount == 0) {
-    led_fd = open(LED_PATH, O_RDONLY);
-    if (led_fd == -1) {
-      return -1;
+    if (led_initcount == 0) {
+        led_fd = open(LED_PATH, O_RDONLY);
+        if (led_fd == -1) {
+            return -1;
+        }
     }
-  }
-  led_initcount++;
-  return 0;
+    led_initcount++;
+    return 0;
 }
 
 /*
@@ -53,13 +53,13 @@ int led_init(void)
  */
 void led_uninit(void)
 {
-  if (led_initcount == 0) {
-    return;
-  }
-  if (--led_initcount == 0) {
-    close(led_fd);
-    led_fd = -1;
-  }
+    if (led_initcount == 0) {
+        return;
+    }
+    if (--led_initcount == 0) {
+        close(led_fd);
+        led_fd = -1;
+    }
 }
 
 /*
@@ -74,11 +74,11 @@ void led_uninit(void)
  */
 int led_status(void)
 {
-  char val;
-  if (ioctl(led_fd, KDGETLED, &val) < 0) {
-    return -1;
-  }
-  return val;
+    char val;
+    if (ioctl(led_fd, KDGETLED, &val) < 0) {
+        return -1;
+    }
+    return val;
 }
 
 /*
@@ -88,24 +88,24 @@ int led_status(void)
  */
 void led_reset(int newstatus)
 {
-  int i = 1;
-  int oldstatus;
+    int i = 1;
+    int oldstatus;
 
-  newstatus &= 0xFF;
-  if (ioctl(led_fd, KDSETLED, (char)newstatus) < 0) {
-    LED_TRACE("KDSETLED ioctl returned -1\n");
-  }
+    newstatus &= 0xFF;
+    if (ioctl(led_fd, KDSETLED, (char)newstatus) < 0) {
+        LED_TRACE("KDSETLED ioctl returned -1\n");
+    }
 
-  while ((oldstatus = led_status()) != newstatus) {
-    if (oldstatus == -1) {
-      LED_TRACE("led_status returned -1 in led_reset\n");
-      break;
+    while ((oldstatus = led_status()) != newstatus) {
+        if (oldstatus == -1) {
+            LED_TRACE("led_status returned -1 in led_reset\n");
+            break;
+        }
+        if ((i & 0x80) == 0) {
+            LED_TRACE("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
+        }
+        i++;
     }
-    if ((i & 0x80) == 0) {
-      LED_TRACE("oldstatus=%x newstatus=%x\n", oldstatus, newstatus);
-    }
-    i++;
-  }
 }
 
 /*
@@ -117,18 +117,18 @@ void led_reset(int newstatus)
  */
 int led_set(int mask, int bit)
 {
-  int oldstatus = led_status();
-  int newstatus;
-  if (oldstatus == -1) {
-    return -1;
-  }
-  if (bit) {
-    newstatus = oldstatus | mask;
-  } else {
-    newstatus = oldstatus & ~mask;
-  }
-  led_reset(newstatus);
-  return oldstatus;
+    int oldstatus = led_status();
+    int newstatus;
+    if (oldstatus == -1) {
+        return -1;
+    }
+    if (bit) {
+        newstatus = oldstatus | mask;
+    } else {
+        newstatus = oldstatus & ~mask;
+    }
+    led_reset(newstatus);
+    return oldstatus;
 }
 
 /*
@@ -136,7 +136,7 @@ int led_set(int mask, int bit)
  */
 void led_setall(int bit)
 {
-  led_reset(bit ? (LED_SCR | LED_CAP | LED_NUM) : 0);
+    led_reset(bit ? (LED_SCR | LED_CAP | LED_NUM) : 0);
 }
 
 /*
@@ -147,16 +147,16 @@ void led_setall(int bit)
  */
 int led_push(void)
 {
-  if (led_stackptr == LED_STACK_SIZE) {
-    return -1;
-  }
-  led_stack[led_stackptr] = led_status();
-  LED_TRACE("push led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
-  if (led_stack[led_stackptr] == -1) {
-    return -1;
-  }
-  led_stackptr++;
-  return led_stackptr;
+    if (led_stackptr == LED_STACK_SIZE) {
+        return -1;
+    }
+    led_stack[led_stackptr] = led_status();
+    LED_TRACE("push led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
+    if (led_stack[led_stackptr] == -1) {
+        return -1;
+    }
+    led_stackptr++;
+    return led_stackptr;
 }
 
 /*
@@ -166,12 +166,12 @@ int led_push(void)
  */
 void led_pop(void)
 {
-  if (led_stackptr == 0) {
-    return;
-  }
-  led_stackptr--;
-  LED_TRACE("pop led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
-  led_reset(led_stack[led_stackptr]);
+    if (led_stackptr == 0) {
+        return;
+    }
+    led_stackptr--;
+    LED_TRACE("pop led_stack[%d] = %x\n", led_stackptr, led_stack[led_stackptr]);
+    led_reset(led_stack[led_stackptr]);
 }
 
 /*
@@ -181,5 +181,5 @@ void led_pop(void)
  */
 void led_trace(FILE *stream)
 {
-  led_traceoutput = stream;
+    led_traceoutput = stream;
 }

@@ -31,26 +31,26 @@
 #include "led.h"
 
 enum {
-      INITIALDELAY = 50,
-      LEVELTIMEFACTOR = 5,
-      LEVELUPFACTOR = 10
+    INITIALDELAY = 50,
+    LEVELTIMEFACTOR = 5,
+    LEVELUPFACTOR = 10
 };
 
 enum {
-      HIT,
-      MISS,
-      TIMELIMIT,
-      QUIT
+    HIT,
+    MISS,
+    TIMELIMIT,
+    QUIT
 };
 
 struct game
 {
-  int problem;
-  int hits;
-  int misses;
-  int score;
-  int level;
-  int quit;
+    int problem;
+    int hits;
+    int misses;
+    int score;
+    int level;
+    int quit;
 };
 
 void init(struct game *g);
@@ -70,152 +70,152 @@ void stats(struct game *g);
 
 int main(void)
 {
-  struct game g;
+    struct game g;
 
-  ledapp_setup();
+    ledapp_setup();
 
-  setlocale(LC_ALL, "");
-  initscr();
-  noecho();
+    setlocale(LC_ALL, "");
+    initscr();
+    noecho();
 
-  srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL));
 
-  init(&g);
+    init(&g);
 
-  while (ongoing(&g)) {
-    newproblem(&g);
-    display(&g);
-    switch (inputaction(&g)) {
-    case HIT:
-      hit(&g);
-      break;
-    case MISS:
-      miss(&g);
-      break;
-    case TIMELIMIT:
-      decay(&g);
-      break;
-    case QUIT:
-    default:
-      gameover(&g);
-      break;
+    while (ongoing(&g)) {
+        newproblem(&g);
+        display(&g);
+        switch (inputaction(&g)) {
+        case HIT:
+            hit(&g);
+            break;
+        case MISS:
+            miss(&g);
+            break;
+        case TIMELIMIT:
+            decay(&g);
+            break;
+        case QUIT:
+        default:
+            gameover(&g);
+            break;
+        }
     }
-  }
 
-  endwin();
+    endwin();
 
-  stats(&g);
+    stats(&g);
 
-  ledapp_teardown();
+    ledapp_teardown();
 }
 
 void init(struct game *g)
 {
-  g->problem = 0;
-  g->hits = 0;
-  g->misses = 0;
-  g->score = 0;
-  g->level = 0;
-  g->quit = 0;
-  inclevel(g);
+    g->problem = 0;
+    g->hits = 0;
+    g->misses = 0;
+    g->score = 0;
+    g->level = 0;
+    g->quit = 0;
+    inclevel(g);
 }
 
 void newproblem(struct game *g)
 {
-  g->problem = rand() & 7;
-  led_reset(g->problem);
+    g->problem = rand() & 7;
+    led_reset(g->problem);
 }
 
 int inputaction(struct game *g)
 {
-  /* 0x96 is 0b10010110, the parity for each case. */
-  int odd = 0x96 & (1 << g->problem);
-  while (1) {
-    switch (getch()) {
-    case 'e':
-      return odd ? MISS : HIT;
-    case 'o':
-      return odd ? HIT : MISS;
-    case 'q':
-      return QUIT;
-    case ERR:
-      return TIMELIMIT;
-    default:
-      /* Must be done to prevent cheating. */
-      return MISS;
+    /* 0x96 is 0b10010110, the parity for each case. */
+    int odd = 0x96 & (1 << g->problem);
+    while (1) {
+        switch (getch()) {
+        case 'e':
+            return odd ? MISS : HIT;
+        case 'o':
+            return odd ? HIT : MISS;
+        case 'q':
+            return QUIT;
+        case ERR:
+            return TIMELIMIT;
+        default:
+            /* Must be done to prevent cheating. */
+            return MISS;
+        }
     }
-  }
 }
 
 int ongoing(struct game *g)
 {
-  return !g->quit;
+    return !g->quit;
 }
 
 void gameover(struct game *g)
 {
-  g->quit = 1;
+    g->quit = 1;
 }
 
 void hit(struct game *g)
 {
-  g->hits++;
-  incscore(g);
+    g->hits++;
+    incscore(g);
 }
 
 void miss(struct game *g)
 {
-  g->misses++;
-  decscore(g);
+    g->misses++;
+    decscore(g);
 }
 
 void decay(struct game *g)
 {
-  decscore(g);
+    decscore(g);
 }
 
 void incscore(struct game *g)
 {
-  g->score++;
-  if (g->score >= levelthreshold(g)) {
-    inclevel(g);
-  }
+    g->score++;
+    if (g->score >= levelthreshold(g)) {
+        inclevel(g);
+    }
 }
 
 void decscore(struct game *g)
 {
-  if (g->score > 0) {
-    g->score--;
-  }
+    if (g->score > 0) {
+        g->score--;
+    }
 }
 
 int levelthreshold(struct game *g)
 {
-  return g->level * LEVELUPFACTOR;
+    return g->level * LEVELUPFACTOR;
 }
 
 void inclevel(struct game *g)
 {
-  int nextlevel = g->level + 1;
-  int tenths = INITIALDELAY - nextlevel * LEVELTIMEFACTOR;
-  if (tenths > 0) {
-    g->level = nextlevel;
-    halfdelay(tenths);
-  } else {
-    gameover(g);
-  }
+    int nextlevel = g->level + 1;
+    int tenths = INITIALDELAY - nextlevel * LEVELTIMEFACTOR;
+    if (tenths > 0) {
+        g->level = nextlevel;
+        halfdelay(tenths);
+    } else {
+        gameover(g);
+    }
 }
 
 void display(struct game *g)
 {
-  mvprintw(5, 5, "Hits: %3d", g->hits);
-  mvprintw(6, 5, "Misses: %3d", g->misses);
-  mvprintw(7, 5, "Score: %3d", g->score);
-  mvprintw(8, 5, "Level: %3d", g->level);
-  refresh();
+    mvprintw(5, 5, "Hits: %3d", g->hits);
+    mvprintw(6, 5, "Misses: %3d", g->misses);
+    mvprintw(7, 5, "Score: %3d", g->score);
+    mvprintw(8, 5, "Level: %3d", g->level);
+    refresh();
 }
 
 void stats(struct game *g)
 {
-  printf("Hits: %d Misses: %d Score: %d Level: %d\n", g->hits, g->misses, g->score, g->level);
+    printf("Hits: %d Misses: %d Score: %d Level: %d\n", g->hits, g->misses, g->score, g->level);
 }
